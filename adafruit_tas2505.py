@@ -201,6 +201,7 @@ def _data_len_code(data_len):
         f"data_len must be a bit count (16, 20, 24, 32) or a DATA_LEN_* code, not {data_len!r}"
     )
 
+
 # DAC data path options. The DAC is mono, so this picks which half of the
 # stereo I2S frame it plays.
 #: DAC data path option: DAC data path off
@@ -1343,9 +1344,7 @@ class TAS2505:
         :raises ValueError: if ``data_len`` is neither a supported bit count
             nor a DATA_LEN_* code.
         """
-        self._page0._set_codec_interface(
-            format, _data_len_code(data_len), bclk_out, wclk_out
-        )
+        self._page0._set_codec_interface(format, _data_len_code(data_len), bclk_out, wclk_out)
 
     @property
     def data_offset(self) -> int:

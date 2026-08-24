@@ -1,24 +1,8 @@
-# SPDX-FileCopyrightText: 2017 Scott Shawcroft, written for Adafruit Industries
 # SPDX-FileCopyrightText: Copyright (c) 2026 Tim Cocks for Adafruit Industries
 #
-# SPDX-License-Identifier: Unlicense
+# SPDX-License-Identifier: MIT
 """
 Print the PLL and divider settings the driver solves for each sample rate.
-
-``configure_clocks`` works out P, R, J, D, NDAC, MDAC and DOSR from whatever
-clock the board supplies, so this is a quick way to see what it picked -- and
-which rates the board's clocking can reach at all. Nothing is played, and no
-amplifier is powered up, so it is safe to run with headphones plugged in.
-
-Pin names are the Teenage Engineering SP-1's, the only board this driver has
-been run on. ``board.TAS_RESET`` has to be released before ``board.I2C()``:
-the SP-1 holds both codec RESET lines low at the start of every VM run, and a
-chip in reset does not ACK, so constructing the driver first would raise
-``ValueError: No I2C device at address: 0x18``.
-
-The rates that fail on a bare bit clock fail for a real reason: at 32 bit
-clocks per frame, 8000 Hz means a 256 kHz bit clock, which is below the PLL's
-512 kHz input minimum. Supply an MCLK and those come back.
 """
 
 import time
@@ -56,11 +40,6 @@ for rate in RATES:
         f"NDAC={config['ndac']} MDAC={config['mdac']} DOSR={config['dosr']}"
     )
 
-# Leave the chip on a sensible setting rather than the last one tried
+# Leave the chip on a sensible setting
 dac.configure_clocks(sample_rate=44100, mclk_freq=MCLK)
-
-# Nothing was powered up, so there is nothing to shut down -- but the pin still
-# has to go back, or at the REPL a re-import fails with "TAS_RESET in use".
-# Note that releasing it leaves the chip *out* of reset: the line goes high
-# once nothing is driving it, so only a VM restart parks the codec again.
 reset_pin.deinit()
